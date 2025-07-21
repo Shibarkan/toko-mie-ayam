@@ -33,14 +33,15 @@ const Main = () => {
   };
 
   return (
-    <main className="min-h-screen">
+    <main className="min-h-screen overflow-x-hidden">
       {/* Hero */}
-      <section
+      <section 
         className="bg-fixed bg-cover bg-center bg-no-repeat text-white min-h-screen flex flex-col items-center justify-center px-4"
         style={{
           backgroundImage:
             "url('https://i.pinimg.com/1200x/e8/23/e2/e823e2f57fd6fb2fcd10a512e53b9449.jpg')",
         }}
+        id="main"
       >
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -53,7 +54,9 @@ const Main = () => {
             <span className="text-[#FB4141]">Toko Mie Ayam</span>
           </h1>
           <p className="text-lg md:text-xl mt-4 drop-shadow">
-            Lorem, ipsum dolor sit amet consectetur adipisicing elit. Fuga nemo voluptatibus inventore ducimus commodi totam quod at ad perferendis ex quae ut corrupti eveniet iusto possimus aliquam, laborum rem sed?
+            Lorem, ipsum dolor sit amet consectetur adipisicing elit. Fuga nemo
+            voluptatibus inventore ducimus commodi totam quod at ad perferendis
+            ex quae ut corrupti eveniet iusto possimus aliquam, laborum rem sed?
           </p>
         </motion.div>
       </section>
@@ -67,7 +70,7 @@ const Main = () => {
       <Menus filtered={filtered} />
 
       {/* Order */}
-      <section className="max-w-3xl mx-auto px-4 pb-20 mt-10" id="order">
+      <section id="order">
         <Order products={menu} />
       </section>
 
