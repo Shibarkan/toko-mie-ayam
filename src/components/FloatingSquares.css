@@ -1,0 +1,34 @@
+/* src/components/FloatingSquares.css */
+.floating-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0; /* supaya tidak menutupi konten */
+  overflow: hidden;
+  pointer-events: none; /* supaya tidak bisa di-klik */
+}
+
+.square {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  background-color: rgba(255, 0, 0, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  animation: floatUpSpin linear infinite;
+}
+
+@keyframes floatUpSpin {
+  0% {
+    transform: translateY(100vh) rotate(0deg);
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-10vh) rotate(360deg);
+    opacity: 0;
+  }
+}
