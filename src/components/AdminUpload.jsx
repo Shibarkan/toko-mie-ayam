@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { supabase } from "../supabase/supabaseClient";
 import { motion, AnimatePresence } from "framer-motion";
-import { Trash2 } from "lucide-react";
+import { Trash2, Image, LogIn, User, Key, FileText, DollarSign, List } from "lucide-react";
 import toast from "react-hot-toast";
 
 const ADMIN_USERNAME = "admin";
@@ -101,13 +101,23 @@ const AdminUpload = () => {
 
   if (!loggedIn) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-300 px-4">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-rose-100 to-white px-4">
         <div className="bg-white rounded-xl shadow-md p-6 w-full max-w-md">
-          <h2 className="text-2xl font-semibold text-center text-gray-800 mb-6">Login Admin</h2>
+          <h2 className="text-2xl font-semibold text-center text-rose-700 mb-6 flex items-center justify-center gap-2">
+            <LogIn /> Login Admin
+          </h2>
           <form onSubmit={handleLogin} className="space-y-4">
-            <input name="username" placeholder="Username" className="w-full p-2 border rounded" required />
-            <input name="password" type="password" placeholder="Password" className="w-full p-2 border rounded" required />
-            <button type="submit" className="w-full bg-gray-800 text-white p-2 rounded hover:bg-gray-700 transition">Login</button>
+            <div className="flex items-center border rounded p-2">
+              <User className="text-gray-500 mr-2" size={18} />
+              <input name="username" placeholder="Username" className="w-full outline-none" required />
+            </div>
+            <div className="flex items-center border rounded p-2">
+              <Key className="text-gray-500 mr-2" size={18} />
+              <input name="password" type="password" placeholder="Password" className="w-full outline-none" required />
+            </div>
+            <button type="submit" className="w-full bg-rose-600 text-white p-2 rounded hover:bg-rose-700 transition">
+              Masuk
+            </button>
           </form>
         </div>
       </div>
@@ -115,36 +125,45 @@ const AdminUpload = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white to-gray-100 py-12 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-white to-rose-50 py-12 px-4">
       <div className="bg-white max-w-2xl mx-auto p-6 rounded-xl shadow-xl">
-        <h2 className="text-2xl font-semibold text-center text-gray-800 mb-6">Tambah Menu Baru</h2>
+        <h2 className="text-2xl font-semibold text-center text-rose-700 mb-6">Tambah Menu Baru</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="text"
-            placeholder="Nama menu"
-            value={form.nama}
-            onChange={(e) => setForm({ ...form, nama: e.target.value })}
-            className="w-full p-2 border rounded"
-            required
-          />
-          <select
-            value={form.kategori}
-            onChange={(e) => setForm({ ...form, kategori: e.target.value })}
-            className="w-full p-2 border rounded"
-            required
-          >
-            <option value="makanan">Makanan</option>
-            <option value="minuman">Minuman</option>
-            <option value="cemilan">Cemilan</option>
-          </select>
-          <input
-            type="number"
-            placeholder="Harga"
-            value={form.harga}
-            onChange={(e) => setForm({ ...form, harga: e.target.value })}
-            className="w-full p-2 border rounded"
-            required
-          />
+          <div className="flex items-center border rounded p-2">
+            <FileText className="text-gray-500 mr-2" size={18} />
+            <input
+              type="text"
+              placeholder="Nama menu"
+              value={form.nama}
+              onChange={(e) => setForm({ ...form, nama: e.target.value })}
+              className="w-full outline-none"
+              required
+            />
+          </div>
+          <div className="flex items-center border rounded p-2">
+            <List className="text-gray-500 mr-2" size={18} />
+            <select
+              value={form.kategori}
+              onChange={(e) => setForm({ ...form, kategori: e.target.value })}
+              className="w-full outline-none"
+              required
+            >
+              <option value="makanan">Makanan</option>
+              <option value="minuman">Minuman</option>
+              <option value="cemilan">Cemilan</option>
+            </select>
+          </div>
+          <div className="flex items-center border rounded p-2">
+            <DollarSign className="text-gray-500 mr-2" size={18} />
+            <input
+              type="number"
+              placeholder="Harga"
+              value={form.harga}
+              onChange={(e) => setForm({ ...form, harga: e.target.value })}
+              className="w-full outline-none"
+              required
+            />
+          </div>
           <input
             type="file"
             accept="image/*"
@@ -162,7 +181,8 @@ const AdminUpload = () => {
             className="hidden"
             id="file-upload"
           />
-          <label htmlFor="file-upload" className="block w-full text-center cursor-pointer bg-gray-200 text-gray-700 p-2 rounded hover:bg-gray-300 transition">
+          <label htmlFor="file-upload" className="flex items-center justify-center gap-2 bg-rose-100 text-rose-700 p-2 rounded cursor-pointer hover:bg-rose-200 transition">
+            <Image size={18} />
             {file ? "Gambar telah dipilih" : "Pilih Gambar"}
           </label>
           {urlPreview && (
@@ -170,14 +190,14 @@ const AdminUpload = () => {
               <img src={urlPreview} alt="Preview" className="w-32 h-32 object-cover rounded border mx-auto" />
             </div>
           )}
-          <button type="submit" disabled={loading} className="w-full bg-gray-800 text-white p-2 rounded hover:bg-gray-700 transition">
+          <button type="submit" disabled={loading} className="w-full bg-rose-600 text-white p-2 rounded hover:bg-rose-700 transition">
             {loading ? "Mengunggah..." : "Upload Menu"}
           </button>
         </form>
       </div>
 
       <div className="max-w-6xl mx-auto mt-16">
-        <h3 className="text-2xl font-semibold mb-6 text-center text-gray-700">Daftar Menu</h3>
+        <h3 className="text-2xl font-semibold mb-6 text-center text-rose-700">Menu Saat Ini</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           <AnimatePresence>
             {menuList.map((item) => (
@@ -200,7 +220,7 @@ const AdminUpload = () => {
                   className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white p-1 rounded-full"
                   title="Hapus"
                 >
-                  <Trash2 size={16} />
+                  <Trash2 size={20} />
                 </button>
               </motion.div>
             ))}
