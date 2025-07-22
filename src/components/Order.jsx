@@ -1,16 +1,20 @@
+// src/components/Order.jsx
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import petok from "../assets/sounds/petok.mp3";
+import logo from "../assets/logo.png";
 import Testimoni from "./Testimoni";
+import ReceiptModal from "./ReceiptModal";
 import { Plus, Minus } from "lucide-react";
 import { useInView } from "react-intersection-observer";
+
+const WA_NUMBER = "6283156980314"; // Nomor penjual
 
 const Order = ({ products }) => {
   const [cart, setCart] = useState({});
   const [showTestimoni, setShowTestimoni] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [showReceipt, setShowReceipt] = useState(false);
 
-  // Group products by category
   const groupedProducts = useMemo(() => {
     return products.reduce((acc, product) => {
       if (!acc[product.kategori]) acc[product.kategori] = [];
@@ -19,7 +23,6 @@ const Order = ({ products }) => {
     }, {});
   }, [products]);
 
-  // Add product
   const increment = (productId) => {
     setCart((prev) => ({
       ...prev,
@@ -28,7 +31,6 @@ const Order = ({ products }) => {
     new Audio(petok).play().catch((err) => console.warn("Audio error:", err));
   };
 
-  // Remove product
   const decrement = (productId) => {
     if (cart[productId] > 0) {
       setCart((prev) => ({
@@ -44,82 +46,17 @@ const Order = ({ products }) => {
       return total + product.harga * quantity;
     }, 0);
 
-  // Handle Midtrans Checkout
-  const handleCheckout = async () => {
-    try {
-      setLoading(true);
+  const orderItems = products.filter((item) => cart[item.id] > 0);
 
-      const orderItems = products
-        .filter((item) => cart[item.id] > 0)
-        .map((item) => ({
-          id: item.id.toString(),
-          price: item.harga,
-          quantity: cart[item.id],
-          name: item.nama,
-          category: item.kategori,
-        }));
-
-      const total = getTotal();
-
-      const requestBody = {
-        transaction_details: {
-          order_id: `ORDER-${Date.now()}`,
-          gross_amount: total,
-        },
-        item_details: orderItems,
-        customer_details: {
-          first_name: "Guest",
-          email: "guest@example.com",
-          phone: "08111222333",
-        },
-        credit_card: { secure: true },
-      };
-
-      const response = await fetch(
-        "http://localhost:3001/api/create-transaction",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(requestBody),
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok)
-        throw new Error(data.message || "Gagal membuat transaksi");
-
-      if (data.token) {
-        window.snap.pay(data.token, {
-          onSuccess: () => {
-            setCart({});
-            setShowTestimoni(true);
-          },
-          onPending: () => alert("Pembayaran sedang diproses"),
-          onError: () => alert("Pembayaran gagal"),
-          onClose: () => alert("Popup pembayaran ditutup"),
-        });
-      }
-    } catch (error) {
-      alert("Terjadi kesalahan: " + error.message);
-    } finally {
-      setLoading(false);
-    }
+  const handleWACheckout = () => {
+    setShowReceipt(true);
   };
 
-  // Kategori & Produk
-  // Kategori & Produk (UPDATE BAGIAN INI SAJA)
-  // Ganti bagian CategorySection dengan ini:
   const CategorySection = ({ title, items }) => {
-    const { ref } = useInView({
-      triggerOnce: true,
-      threshold: 0.2,
-    });
+    const { ref } = useInView({ triggerOnce: true, threshold: 0.2 });
 
     return (
-      <div
-        className="mb-14"
-      >
+      <div className="mb-14">
         <h3 className="text-2xl font-bold mb-6 flex items-center text-gray-800 capitalize">
           {title === "makanan" && "🍜"}
           {title === "minuman" && "🥤"}
@@ -137,12 +74,11 @@ const Order = ({ products }) => {
           </div>
 
           <div className="md:col-span-2 space-y-4">
-            {items.map((product, index) => (
+            {items.map((product) => (
               <div
                 key={product.id}
                 className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition"
               >
-                {/* Info Produk */}
                 <motion.div className="flex items-center gap-4 w-full sm:w-2/3">
                   <img
                     src={product.gambar}
@@ -159,7 +95,6 @@ const Order = ({ products }) => {
                   </div>
                 </motion.div>
 
-                {/* Tombol Cart */}
                 <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
                   <button
                     onClick={() => decrement(product.id)}
@@ -194,14 +129,12 @@ const Order = ({ products }) => {
 
   return (
     <div className="px-6 py-24">
-      {/* Product Section */}
       <div className="space-y-16">
         {Object.entries(groupedProducts).map(([category, items]) => (
           <CategorySection key={category} title={category} items={items} />
         ))}
       </div>
 
-      {/* Checkout Bar */}
       {hasItems && (
         <motion.div
           initial={{ y: 100 }}
@@ -216,11 +149,10 @@ const Order = ({ products }) => {
               </p>
             </div>
             <button
-              onClick={handleCheckout}
-              disabled={loading}
-              className="px-8 py-4 bg-[#FB4141] text-white text-lg rounded-xl font-semibold hover:bg-[#e33333] transition disabled:bg-gray-400"
+              onClick={handleWACheckout}
+              className="px-8 py-4 bg-[#FB4141] text-white text-lg rounded-xl font-semibold hover:bg-[#e33333] transition"
             >
-              {loading ? "Memproses..." : "Bayar Sekarang"}
+              Kirim via WhatsApp
             </button>
           </div>
         </motion.div>
@@ -233,6 +165,35 @@ const Order = ({ products }) => {
         onSubmit={(data) => {
           console.log("Testimoni submitted:", data);
           setShowTestimoni(false);
+        }}
+      />
+
+      {/* Modal Struk WA */}
+      <ReceiptModal
+        visible={showReceipt}
+        onClose={() => setShowReceipt(false)}
+        items={orderItems.map((item) => ({
+          ...item,
+          quantity: cart[item.id] || 0,
+        }))}
+        total={getTotal()}
+        logo={logo}
+        onSend={() => {
+          const itemStr = orderItems
+            .map((item) => {
+              const qty = cart[item.id] || 0;
+              const harga = item.harga || 0;
+              return `- ${item.nama} x${qty}: Rp ${(
+                harga * qty
+              ).toLocaleString()}`;
+            })
+            .join("%0A");
+
+          const waText = `Halo kak, saya ingin pesan:%0A${itemStr}%0A%0ATotal: Rp ${getTotal().toLocaleString()}`;
+          window.open(`https://wa.me/${WA_NUMBER}?text=${waText}`, "_blank");
+
+          setCart({});
+          setShowReceipt(false);
         }}
       />
     </div>

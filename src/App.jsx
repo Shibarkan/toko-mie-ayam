@@ -4,14 +4,14 @@ import AdminUpload from "./components/AdminUpload";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Main from "./components/Main";
-import FloatingFans from "./components/FloatingFans";
+// import FloatingFans from "./components/FloatingFans";
 import ScrollToHashElement from "./components/ScrollToHashElement";
 
 function App() {
   return (
     <Router>
       <div className="relative">
-        <FloatingFans />
+        {/* <FloatingFans /> */}
         <Header />
         <ScrollToHashElement />
         <Routes>
