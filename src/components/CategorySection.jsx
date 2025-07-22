@@ -17,7 +17,7 @@ const CategorySection = ({ title, items, cart, increment, decrement }) => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
         <div className="md:col-span-1 bg-white rounded-xl shadow p-4 flex justify-center items-center h-full">
           <img
-            src="https://i.pinimg.com/736x/40/ff/45/40ff45a5ae70a855cf1292e8f2a8100c.jpg"
+            src="https://i.pinimg.com/736x/4d/89/4a/4d894ae7d925293f90b3aa7e5b3a316c.jpg"
             alt={`Kategori ${title}`}
             className="rounded-lg object-cover max-h-[250px]"
           />

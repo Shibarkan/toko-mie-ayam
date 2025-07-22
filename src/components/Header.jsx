@@ -12,7 +12,7 @@ const Header = () => {
   const location = useLocation();
 
   const navigation = [
-    { name: "Beranda", href: "#main" },
+    { name: "Beranda", href: "/#main" },
     { name: "Menu", href: "/#menu" },
     { name: "Pesan", href: "/#order" },
     { name: "Lokasi", href: "/#location" },
@@ -42,7 +42,7 @@ const Header = () => {
         showHeader ? "translate-y-0" : "-translate-y-full"
       } backdrop-blur-md bg-[#FB4141]/90 shadow-md border-b border-red-500`}
     >
-      <div className="w-full px-4 sm:px-6 flex items-center justify-between h-16 max-w-screen-xl mx-auto overflow-hidden">
+      <div className="w-full px-4 sm:px-6 flex items-center justify-between h-16 max-w-screen-xl mx-auto overflow-hidden bg-[#FB4141]">
         {/* Logo */}
         <Link
           to="/"

@@ -1,6 +1,7 @@
 import React, { useRef } from "react";
 import { X, Download } from "lucide-react";
 import html2canvas from "html2canvas";
+import { toast } from "react-hot-toast"; // ✅ Tambahkan ini
 
 const ReceiptModal = ({ visible, onClose, items, total, logo, onSend, orderNumber }) => {
   const receiptRef = useRef();
@@ -9,12 +10,17 @@ const ReceiptModal = ({ visible, onClose, items, total, logo, onSend, orderNumbe
 
   const handleDownload = async () => {
     if (!receiptRef.current) return;
-    const canvas = await html2canvas(receiptRef.current);
-    const link = document.createElement("a");
-    link.download = `struk-pemesanan-${orderNumber}.png`;
-    link.href = canvas.toDataURL();
-    link.click();
-    alert("Struk berhasil diunduh sebagai gambar.");
+    try {
+      const canvas = await html2canvas(receiptRef.current, { useCORS: true });
+      const link = document.createElement("a");
+      link.download = `struk-pemesanan-${orderNumber}.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+
+      toast.success("Struk berhasil diunduh sebagai gambar!"); // ✅ Notifikasi
+    } catch (err) {
+      toast.error("Gagal mengunduh struk.");
+    }
   };
 
   const today = new Date();
@@ -22,7 +28,7 @@ const ReceiptModal = ({ visible, onClose, items, total, logo, onSend, orderNumbe
     weekday: "long",
     year: "numeric",
     month: "long",
-    day: "numeric"
+    day: "numeric",
   });
 
   return (
@@ -91,3 +97,4 @@ const ReceiptModal = ({ visible, onClose, items, total, logo, onSend, orderNumbe
 };
 
 export default ReceiptModal;
+  

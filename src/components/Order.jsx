@@ -88,7 +88,7 @@ const Order = ({ products }) => {
               onClick={handleWACheckout}
               className="px-8 py-4 bg-[#FB4141] text-white text-lg rounded-xl font-semibold hover:bg-[#e33333] transition"
             >
-              Kirim via WhatsApp
+              Proses
             </button>
           </div>
         </motion.div>
