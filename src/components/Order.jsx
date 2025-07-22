@@ -1,19 +1,20 @@
-// src/components/Order.jsx
+// src/components/Order/Order.jsx
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import petok from "../assets/sounds/petok.mp3";
 import logo from "../assets/logo.png";
 import Testimoni from "./Testimoni";
 import ReceiptModal from "./ReceiptModal";
-import { Plus, Minus } from "lucide-react";
-import { useInView } from "react-intersection-observer";
+import ConfirmIdentity from "./ConfirmIdentity";
+import CategorySection from "./CategorySection";
 
-const WA_NUMBER = "6283156980314"; // Nomor penjual
+const WA_NUMBER = "6283156980314";
 
 const Order = ({ products }) => {
   const [cart, setCart] = useState({});
-  const [showTestimoni, setShowTestimoni] = useState(false);
   const [showReceipt, setShowReceipt] = useState(false);
+  const [showIdentity, setShowIdentity] = useState(false);
+  const [buyer, setBuyer] = useState({ nama: "", alamat: "", metode: "" });
 
   const groupedProducts = useMemo(() => {
     return products.reduce((acc, product) => {
@@ -23,106 +24,34 @@ const Order = ({ products }) => {
     }, {});
   }, [products]);
 
-  const increment = (productId) => {
-    setCart((prev) => ({
-      ...prev,
-      [productId]: (prev[productId] || 0) + 1,
-    }));
-    new Audio(petok).play().catch((err) => console.warn("Audio error:", err));
+  const increment = (id) => {
+    setCart((prev) => ({ ...prev, [id]: (prev[id] || 0) + 1 }));
+    new Audio(petok).play().catch(console.warn);
   };
 
-  const decrement = (productId) => {
-    if (cart[productId] > 0) {
-      setCart((prev) => ({
-        ...prev,
-        [productId]: prev[productId] - 1,
-      }));
+  const decrement = (id) => {
+    if (cart[id] > 0) {
+      setCart((prev) => ({ ...prev, [id]: prev[id] - 1 }));
     }
   };
 
   const getTotal = () =>
-    products.reduce((total, product) => {
-      const quantity = cart[product.id] || 0;
-      return total + product.harga * quantity;
-    }, 0);
+    products.reduce((t, p) => t + (cart[p.id] || 0) * p.harga, 0);
 
   const orderItems = products.filter((item) => cart[item.id] > 0);
 
-  const handleWACheckout = () => {
-    setShowReceipt(true);
-  };
+  const handleWACheckout = () => setShowIdentity(true);
 
-  const CategorySection = ({ title, items }) => {
-    const { ref } = useInView({ triggerOnce: true, threshold: 0.2 });
+  const handleSend = () => {
+    const itemStr = orderItems
+      .map((item) => `- ${item.nama} x${cart[item.id]}: Rp ${(item.harga * cart[item.id]).toLocaleString()}`)
+      .join("%0A");
 
-    return (
-      <div className="mb-14">
-        <h3 className="text-2xl font-bold mb-6 flex items-center text-gray-800 capitalize">
-          {title === "makanan" && "🍜"}
-          {title === "minuman" && "🥤"}
-          {title === "cemilan" && "🍟"}
-          <span className="ml-2">{title}</span>
-        </h3>
+    const waText = `Halo kak, saya ingin pesan:%0A${itemStr}%0A%0ATotal: Rp ${getTotal().toLocaleString()}%0A%0AAtas nama: ${buyer.nama}%0AAlamat: ${buyer.alamat}%0AMetode Pembayaran: ${buyer.metode}`;
+    window.open(`https://wa.me/${WA_NUMBER}?text=${waText}`, "_blank");
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
-          <div className="md:col-span-1 bg-white rounded-xl shadow p-4 flex justify-center items-center h-full">
-            <img
-              src="https://i.pinimg.com/736x/40/ff/45/40ff45a5ae70a855cf1292e8f2a8100c.jpg"
-              alt={`Kategori ${title}`}
-              className="rounded-lg object-cover max-h-[250px]"
-            />
-          </div>
-
-          <div className="md:col-span-2 space-y-4">
-            {items.map((product) => (
-              <div
-                key={product.id}
-                className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition"
-              >
-                <motion.div className="flex items-center gap-4 w-full sm:w-2/3">
-                  <img
-                    src={product.gambar}
-                    alt={product.nama}
-                    className="w-20 h-20 rounded-xl object-cover"
-                  />
-                  <div className="flex flex-col">
-                    <h4 className="text-lg font-semibold text-gray-800 leading-tight">
-                      {product.nama}
-                    </h4>
-                    <p className="text-[#FB4141] font-bold text-base">
-                      Rp {product.harga.toLocaleString()}
-                    </p>
-                  </div>
-                </motion.div>
-
-                <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
-                  <button
-                    onClick={() => decrement(product.id)}
-                    disabled={!cart[product.id]}
-                    className={`w-9 h-9 flex items-center justify-center rounded-full transition text-lg ${
-                      cart[product.id]
-                        ? "bg-[#FB4141] text-white"
-                        : "bg-gray-200 text-gray-400"
-                    }`}
-                  >
-                    <Minus size={18} />
-                  </button>
-                  <span className="text-xl font-bold w-6 text-center">
-                    {cart[product.id] || 0}
-                  </span>
-                  <button
-                    onClick={() => increment(product.id)}
-                    className="w-9 h-9 flex items-center justify-center bg-[#FB4141] text-white rounded-full hover:bg-[#e33333] transition"
-                  >
-                    <Plus size={18} />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
+    setCart({});
+    setShowReceipt(false);
   };
 
   const hasItems = Object.values(cart).some((qty) => qty > 0);
@@ -131,7 +60,14 @@ const Order = ({ products }) => {
     <div className="px-6 py-24">
       <div className="space-y-16">
         {Object.entries(groupedProducts).map(([category, items]) => (
-          <CategorySection key={category} title={category} items={items} />
+          <CategorySection
+            key={category}
+            title={category}
+            items={items}
+            cart={cart}
+            increment={increment}
+            decrement={decrement}
+          />
         ))}
       </div>
 
@@ -158,42 +94,22 @@ const Order = ({ products }) => {
         </motion.div>
       )}
 
-      {/* Modal Testimoni */}
-      <Testimoni
-        visible={showTestimoni}
-        onClose={() => setShowTestimoni(false)}
-        onSubmit={(data) => {
-          console.log("Testimoni submitted:", data);
-          setShowTestimoni(false);
-        }}
-      />
-
-      {/* Modal Struk WA */}
       <ReceiptModal
         visible={showReceipt}
         onClose={() => setShowReceipt(false)}
-        items={orderItems.map((item) => ({
-          ...item,
-          quantity: cart[item.id] || 0,
-        }))}
+        items={orderItems.map((item) => ({ ...item, quantity: cart[item.id] || 0 }))}
         total={getTotal()}
         logo={logo}
-        onSend={() => {
-          const itemStr = orderItems
-            .map((item) => {
-              const qty = cart[item.id] || 0;
-              const harga = item.harga || 0;
-              return `- ${item.nama} x${qty}: Rp ${(
-                harga * qty
-              ).toLocaleString()}`;
-            })
-            .join("%0A");
+        onSend={handleSend}
+      />
 
-          const waText = `Halo kak, saya ingin pesan:%0A${itemStr}%0A%0ATotal: Rp ${getTotal().toLocaleString()}`;
-          window.open(`https://wa.me/${WA_NUMBER}?text=${waText}`, "_blank");
-
-          setCart({});
-          setShowReceipt(false);
+      <ConfirmIdentity
+        visible={showIdentity}
+        onClose={() => setShowIdentity(false)}
+        onConfirm={(data) => {
+          setBuyer(data);
+          setShowIdentity(false);
+          setShowReceipt(true);
         }}
       />
     </div>
