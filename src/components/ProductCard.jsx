@@ -1,7 +1,7 @@
 // src/components/ProductCard.jsx
 import { motion } from "framer-motion";
 import petok from "../assets/sounds/petok.mp3";
-import logo from "../assets/logo.png";
+import logo from "../assets/logo.jpg";
 
 const ProductCard = ({ product }) => {
   const handleClick = () => {

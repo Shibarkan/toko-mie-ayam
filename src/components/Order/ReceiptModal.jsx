@@ -1,7 +1,8 @@
+// src/components/Order/ReceiptModal.jsx
 import React, { useRef } from "react";
 import { X, Download } from "lucide-react";
 import html2canvas from "html2canvas";
-import { toast } from "react-hot-toast"; 
+import { toast } from "react-hot-toast";
 
 const ReceiptModal = ({ visible, onClose, items, total, logo, onSend, orderNumber }) => {
   const receiptRef = useRef();
@@ -17,7 +18,7 @@ const ReceiptModal = ({ visible, onClose, items, total, logo, onSend, orderNumbe
       link.href = canvas.toDataURL("image/png");
       link.click();
 
-      toast.success("Struk berhasil diunduh sebagai gambar!"); // ✅ Notifikasi
+      toast.success("Struk berhasil diunduh sebagai gambar!");
     } catch (err) {
       toast.error("Gagal mengunduh struk.");
     }
@@ -54,12 +55,14 @@ const ReceiptModal = ({ visible, onClose, items, total, logo, onSend, orderNumbe
 
           <div className="divide-y divide-gray-200 text-left">
             {items.map((item) => (
-              <div
-                key={item.id}
-                className="flex justify-between py-2 text-sm text-gray-700"
-              >
-                <span>{item.nama} x{item.quantity}</span>
-                <span>Rp {((item.harga || 0) * item.quantity).toLocaleString()}</span>
+              <div key={item.id} className="py-2 text-sm text-gray-700">
+                <div className="flex justify-between">
+                  <span>{item.nama} x{item.quantity}</span>
+                  <span>Rp {((item.harga || 0) * item.quantity).toLocaleString()}</span>
+                </div>
+                {item.note && (
+                  <p className="text-xs text-gray-500 mt-1 italic">Catatan: {item.note}</p>
+                )}
               </div>
             ))}
           </div>
@@ -73,7 +76,9 @@ const ReceiptModal = ({ visible, onClose, items, total, logo, onSend, orderNumbe
 
           <hr className="my-4 border-t border-gray-300" />
 
-          <p className="text-xs text-gray-400 mt-4">Terima kasih telah memesan. Simpan struk ini sebagai bukti pembelian.</p>
+          <p className="text-xs text-gray-400 mt-4">
+            Terima kasih telah memesan. Simpan struk ini sebagai bukti pembelian.
+          </p>
         </div>
 
         <div className="flex flex-col gap-3">
@@ -97,4 +102,3 @@ const ReceiptModal = ({ visible, onClose, items, total, logo, onSend, orderNumbe
 };
 
 export default ReceiptModal;
-  

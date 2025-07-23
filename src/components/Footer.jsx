@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { FaInstagram, FaWhatsapp, FaMapMarkerAlt } from "react-icons/fa";
-import logo from "../assets/logo.png";
+import logo from "../assets/logo.jpg";
 import { Earth } from "lucide-react";
 
 const Footer = () => {
@@ -17,7 +17,7 @@ const Footer = () => {
           <img
             src={logo}
             alt="Logo Toko Mie Ayam"
-            className="w-16 h-16 object-contain transition-transform hover:scale-105 duration-300 bg-transparent rounded-full shadow-lg"
+            className="w-16 h-16 transition-transform hover:scale-105 duration-300 rounded-full shadow-lg"
           />
           <h2 className="text-lg font-bold">Toko Mie Ayam</h2>
           <p className="text-white/80 max-w-xs">

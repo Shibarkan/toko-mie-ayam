@@ -1,12 +1,11 @@
-// src/components/Order/Order.jsx
+// src/components/Order.jsx
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import petok from "../assets/sounds/petok.mp3";
-import logo from "../assets/logo.png";
-import Testimoni from "./Order/Testimoni";
+import logo from "../assets/logo.jpg";
+import CategorySection from "./Order/CategorySection";
 import ReceiptModal from "./Order/ReceiptModal";
 import ConfirmIdentity from "./Order/ConfirmIdentity";
-import CategorySection from "./Order/CategorySection";
 
 const WA_NUMBER = "6283156980314";
 
@@ -25,39 +24,80 @@ const Order = ({ products }) => {
   }, [products]);
 
   const increment = (id) => {
-    setCart((prev) => ({ ...prev, [id]: (prev[id] || 0) + 1 }));
+    setCart((prev) => ({
+      ...prev,
+      [id]: {
+        ...(prev[id] || {}),
+        quantity: (prev[id]?.quantity || 0) + 1,
+        note: prev[id]?.note || "",
+      },
+    }));
     new Audio(petok).play().catch(console.warn);
   };
 
   const decrement = (id) => {
-    if (cart[id] > 0) {
-      setCart((prev) => ({ ...prev, [id]: prev[id] - 1 }));
-    }
+    setCart((prev) => {
+      if ((prev[id]?.quantity || 0) <= 1) {
+        const newCart = { ...prev };
+        delete newCart[id];
+        return newCart;
+      }
+      return {
+        ...prev,
+        [id]: {
+          ...prev[id],
+          quantity: prev[id].quantity - 1,
+        },
+      };
+    });
+  };
+
+  const setNote = (id, note) => {
+    setCart((prev) => ({
+      ...prev,
+      [id]: {
+        ...(prev[id] || {}),
+        quantity: prev[id]?.quantity || 1,
+        note,
+      },
+    }));
   };
 
   const getTotal = () =>
-    products.reduce((t, p) => t + (cart[p.id] || 0) * p.harga, 0);
+    products.reduce((t, p) => t + (cart[p.id]?.quantity || 0) * p.harga, 0);
 
-  const orderItems = products.filter((item) => cart[item.id] > 0);
+  const orderItems = products
+    .filter((item) => cart[item.id]?.quantity > 0)
+    .map((item) => ({
+      ...item,
+      quantity: cart[item.id].quantity,
+      note: cart[item.id].note,
+    }));
 
   const handleWACheckout = () => setShowIdentity(true);
 
   const handleSend = () => {
     const itemStr = orderItems
-      .map((item) => `- ${item.nama} x${cart[item.id]}: Rp ${(item.harga * cart[item.id]).toLocaleString()}`)
+      .map(
+        (item) =>
+          `- ${item.nama} x${item.quantity}: Rp ${(item.harga * item.quantity).toLocaleString()}${
+            item.note ? ` (%0ACatatan: ${item.note})` : ""
+          }`
+      )
       .join("%0A");
 
-    const waText = `Halo kak, saya ingin pesan:%0A${itemStr}%0A%0ATotal: Rp ${getTotal().toLocaleString()}%0A%0AAtas nama: ${buyer.nama}%0AAlamat: ${buyer.alamat}%0AMetode Pembayaran: ${buyer.metode}`;
+    const waText = `Halo kak, saya ingin pesan:%0A${itemStr}%0A%0ATotal: Rp ${getTotal().toLocaleString()}%0A%0ANama: ${buyer.nama}%0AAlamat: ${buyer.alamat}%0AMetode: ${buyer.metode}`;
     window.open(`https://wa.me/${WA_NUMBER}?text=${waText}`, "_blank");
 
     setCart({});
     setShowReceipt(false);
   };
 
-  const hasItems = Object.values(cart).some((qty) => qty > 0);
+  const hasItems = Object.values(cart).some((val) => val.quantity > 0);
 
   return (
     <div className="px-6 py-24">
+      <h1 className="text-4xl md:text-5xl font-extrabold text-center bg-gradient-to-r from-red-500 to-yellow-400 text-transparent bg-clip-text drop-shadow-lg mb-16">Pesan Disini</h1>
       <div className="space-y-16">
         {Object.entries(groupedProducts).map(([category, items]) => (
           <CategorySection
@@ -67,6 +107,7 @@ const Order = ({ products }) => {
             cart={cart}
             increment={increment}
             decrement={decrement}
+            setNote={setNote}
           />
         ))}
       </div>
@@ -97,10 +138,11 @@ const Order = ({ products }) => {
       <ReceiptModal
         visible={showReceipt}
         onClose={() => setShowReceipt(false)}
-        items={orderItems.map((item) => ({ ...item, quantity: cart[item.id] || 0 }))}
+        items={orderItems}
         total={getTotal()}
         logo={logo}
         onSend={handleSend}
+        orderNumber={Math.floor(Math.random() * 9000 + 1000)} // struk random id
       />
 
       <ConfirmIdentity
