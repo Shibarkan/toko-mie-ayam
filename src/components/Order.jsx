@@ -3,10 +3,10 @@ import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import petok from "../assets/sounds/petok.mp3";
 import logo from "../assets/logo.png";
-import Testimoni from "./Testimoni";
-import ReceiptModal from "./ReceiptModal";
-import ConfirmIdentity from "./ConfirmIdentity";
-import CategorySection from "./CategorySection";
+import Testimoni from "./Order/Testimoni";
+import ReceiptModal from "./Order/ReceiptModal";
+import ConfirmIdentity from "./Order/ConfirmIdentity";
+import CategorySection from "./Order/CategorySection";
 
 const WA_NUMBER = "6283156980314";
 

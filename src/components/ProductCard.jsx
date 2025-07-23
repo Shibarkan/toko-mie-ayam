@@ -29,11 +29,10 @@ const ProductCard = ({ product }) => {
 
       <img
         src={
-          product.gambar ||
-          "https://via.placeholder.com/300x200?text=No+Image"
+          product.gambar || "https://via.placeholder.com/300x200?text=No+Image"
         }
         alt={product.nama}
-        className="w-full h-48 w-96 object-scale-down bg-gray-100"
+        className="w-full h-40 object-cover bg-gray-100"
         onError={(e) =>
           (e.target.src =
             "https://via.placeholder.com/300x200?text=Image+Error")

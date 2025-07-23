@@ -1,7 +1,7 @@
 import React, { useRef } from "react";
 import { X, Download } from "lucide-react";
 import html2canvas from "html2canvas";
-import { toast } from "react-hot-toast"; // ✅ Tambahkan ini
+import { toast } from "react-hot-toast"; 
 
 const ReceiptModal = ({ visible, onClose, items, total, logo, onSend, orderNumber }) => {
   const receiptRef = useRef();
