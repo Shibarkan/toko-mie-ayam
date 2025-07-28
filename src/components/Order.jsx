@@ -1,4 +1,3 @@
-// src/components/Order.jsx
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import petok from "../assets/sounds/petok.mp3";
@@ -15,10 +14,12 @@ const Order = ({ products }) => {
   const [showIdentity, setShowIdentity] = useState(false);
   const [buyer, setBuyer] = useState({ nama: "", alamat: "", metode: "" });
 
+  // ✅ Normalisasi kategori ke lowercase agar tidak menambah section baru
   const groupedProducts = useMemo(() => {
     return products.reduce((acc, product) => {
-      if (!acc[product.kategori]) acc[product.kategori] = [];
-      acc[product.kategori].push(product);
+      const kategori = product.kategori.toLowerCase();
+      if (!acc[kategori]) acc[kategori] = [];
+      acc[kategori].push(product);
       return acc;
     }, {});
   }, [products]);
@@ -76,28 +77,13 @@ const Order = ({ products }) => {
 
   const handleWACheckout = () => setShowIdentity(true);
 
-  const handleSend = () => {
-    const itemStr = orderItems
-      .map(
-        (item) =>
-          `- ${item.nama} x${item.quantity}: Rp ${(item.harga * item.quantity).toLocaleString()}${
-            item.note ? ` (%0ACatatan: ${item.note})` : ""
-          }`
-      )
-      .join("%0A");
-
-    const waText = `Halo kak, saya ingin pesan:%0A${itemStr}%0A%0ATotal: Rp ${getTotal().toLocaleString()}%0A%0ANama: ${buyer.nama}%0AAlamat: ${buyer.alamat}%0AMetode: ${buyer.metode}`;
-    window.open(`https://wa.me/${WA_NUMBER}?text=${waText}`, "_blank");
-
-    setCart({});
-    setShowReceipt(false);
-  };
-
   const hasItems = Object.values(cart).some((val) => val.quantity > 0);
 
   return (
     <div className="px-6 py-24">
-      <h1 className="text-4xl md:text-5xl font-extrabold text-center bg-gradient-to-r from-red-500 to-yellow-400 text-transparent bg-clip-text drop-shadow-lg mb-16">Pesan Disini</h1>
+      <h1 className="text-4xl md:text-5xl font-extrabold text-center bg-gradient-to-r from-red-500 to-yellow-400 text-transparent bg-clip-text drop-shadow-lg mb-16">
+        Pesan Di bawah
+      </h1>
       <div className="space-y-16">
         {Object.entries(groupedProducts).map(([category, items]) => (
           <CategorySection
@@ -141,8 +127,8 @@ const Order = ({ products }) => {
         items={orderItems}
         total={getTotal()}
         logo={logo}
-        onSend={handleSend}
-        orderNumber={Math.floor(Math.random() * 9000 + 1000)} // struk random id
+        orderNumber={123}
+        userData={buyer}
       />
 
       <ConfirmIdentity

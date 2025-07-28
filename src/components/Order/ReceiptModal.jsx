@@ -3,8 +3,9 @@ import React, { useRef } from "react";
 import { X, Download } from "lucide-react";
 import html2canvas from "html2canvas";
 import { toast } from "react-hot-toast";
+import { supabase } from "../../supabase/supabaseClient"; // pastikan path sesuai
 
-const ReceiptModal = ({ visible, onClose, items, total, logo, onSend, orderNumber }) => {
+const ReceiptModal = ({ visible, onClose, items, total, logo, orderNumber, userData }) => {
   const receiptRef = useRef();
 
   if (!visible) return null;
@@ -17,11 +18,46 @@ const ReceiptModal = ({ visible, onClose, items, total, logo, onSend, orderNumbe
       link.download = `struk-pemesanan-${orderNumber}.png`;
       link.href = canvas.toDataURL("image/png");
       link.click();
-
       toast.success("Struk berhasil diunduh sebagai gambar!");
     } catch (err) {
       toast.error("Gagal mengunduh struk.");
     }
+  };
+
+  const handleSend = async () => {
+    const { nama, alamat, metode } = userData || {};
+
+    // Validasi
+    if (!nama || !alamat || !metode) {
+      toast.error("Data identitas belum lengkap.");
+      return;
+    }
+
+    // Simpan ke Supabase
+    const { error } = await supabase.from("orders").insert([
+      {
+        nama,
+        alamat,
+        metode,
+      },
+    ]);
+
+    if (error) {
+      toast.error("Gagal simpan ke database: " + error.message);
+      return;
+    }
+
+    toast.success("Berhasil disimpan ke database!");
+
+    // Buat isi pesan WA
+    const pesan = `Halo! Saya ingin memesan:\n\n${items
+      .map((item) => `- ${item.nama} x${item.quantity}${item.note ? ` (${item.note})` : ""}`)
+      .join("\n")}\n\nTotal: Rp ${total.toLocaleString()}\n\nNama: ${nama}\nAlamat: ${alamat}\nMetode: ${metode}`;
+
+    const encoded = encodeURIComponent(pesan);
+    const waUrl = `https://wa.me/6283156980314?text=${encoded}`; // Ganti nomor sesuai kebutuhan
+
+    window.open(waUrl, "_blank");
   };
 
   const today = new Date();
@@ -58,7 +94,7 @@ const ReceiptModal = ({ visible, onClose, items, total, logo, onSend, orderNumbe
               <div key={item.id} className="py-2 text-sm text-gray-700">
                 <div className="flex justify-between">
                   <span>{item.nama} x{item.quantity}</span>
-                  <span>Rp {((item.harga || 0) * item.quantity).toLocaleString()}</span>
+                  <span>Rp {(item.harga * item.quantity).toLocaleString()}</span>
                 </div>
                 {item.note && (
                   <p className="text-xs text-gray-500 mt-1 italic">Catatan: {item.note}</p>
@@ -90,7 +126,7 @@ const ReceiptModal = ({ visible, onClose, items, total, logo, onSend, orderNumbe
           </button>
 
           <button
-            onClick={onSend}
+            onClick={handleSend}
             className="w-full py-3 bg-[#FB4141] text-white rounded-xl font-semibold hover:bg-[#e33333] transition"
           >
             Kirim Struk ke WhatsApp Penjual
